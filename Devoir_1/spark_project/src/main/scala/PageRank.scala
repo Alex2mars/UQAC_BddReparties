@@ -19,25 +19,29 @@ object PageRank {
   sc.setLogLevel("ERROR")
 
   val iter = 20
-  val lines = sc.textFile("./urldata.txt") // read text file into Dataset[String] -> RDD1
-  val pairs = lines.map { s =>
-    val parts = s.split("\\s+") // Splits a line into an array of 2 elements according space(s)
-    (parts(0), parts(1))
+  val dumpFactor = 0.85
+
+  val pairs = sc.textFile("./urldata.txt").map { s =>
+    val urls = s.split("\\s+") // Splits a line into an array of 2 elements according space(s)
+    (urls(0), urls(1))
   }
 
   val links = pairs.distinct().groupByKey().cache() // RDD1 <string, string> -> RDD2<string, iterable>
   val urlRank = links.mapValues(v => 1.0)
 
   for (i <- 1 to iters) {
+    println("Iteration : "+i)
     val contribs = links.join(ranks).values.flatMap { case (urls, rank) =>
       val size = urls.size
       urls.map(url => (url, rank / size))
     }
-    ranks = contribs.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)
+
+    urlRank = contribs.reduceByKey(_ + _).mapValues(x => (1 - dumpFactor) + dumpFactor * x)
+    urlRank.take(10).foreach(println)
   }
 
-  val output = ranks.collect()
-  output.foreach(tup => println(tup._1 + " has rank: " + tup._2 + "."))
+  urlRank.sortBy(_._2, false)
+  urlRank.saveAsTextFile("result")
 
   spark.stop()
 
