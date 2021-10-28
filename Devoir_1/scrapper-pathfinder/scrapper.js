@@ -227,7 +227,7 @@ async function scraper(browser){
 
     let data = await scrapeCurrentPage();
 
-    const uri = "mongodb+srv://root:root@cluster0.v4hqy.mongodb.net/scrapping?retryWrites=true&w=majority";
+    const uri = "mongodb+srv://:@cluster0.v4hqy.mongodb.net/scrapping?retryWrites=true&w=majority";
     const client = new MongoClient(uri);
 
     try {
