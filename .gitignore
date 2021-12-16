@@ -2,3 +2,7 @@
 *.log
 Spark/*
 *.idea
+spark-3.1.2-bin-hadoop3.2/
+Spark/
+Devoir_1/spark_project/target/
+Devoir_1/spark_project/project/
